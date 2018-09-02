@@ -251,14 +251,24 @@
             query = query[0].substr(1).split("&");
             for (var i = 0; i < query.length; i++) {
                 var pair = query[i].split("=");
-                cfg[pair[0]] = pair[1];
+                cfg[pair[0]] = decodeURIComponent(pair[1]);
             }
 
             return cfg;
         }
 
-        function load() {
-            var config = config_from_uri(document.location.href);
+        function load(config) {
+            if (!config) {
+                config = config_from_uri(document.location.href);
+
+                if (config.text) {
+                    document.getElementById("Text").value = config.text
+                }
+
+                if (config.words) {
+                    document.getElementById("wordListSelect").value = config.words
+                }
+            }
 
             // If config.words is set it is assumed to be the URL to a text file that contains a list of all valid words.
             var wordListFile = config.words || "words/english-1000-plus-inflections.txt"
@@ -273,6 +283,7 @@
                     }
                 }).then(words => {
                     var loaded_words = words.split("\n").map(w => w.trim())
+                        .filter(w => w.length > 0 && w[0] !== "#") // remove empty lines and comments
                     use_words(loaded_words)
 
                     console.log("Loaded " + loaded_words.length + " words from '" + wordListFile + "'")
@@ -294,11 +305,23 @@
 
         function use_words(words) {
             word_index = build_index(words)
+            update_permalink()
             check_words()
         }
 
         function refresh_index() {
             word_index = build_index(valid_words);
+        }
+
+        function update_permalink() {
+            var uriConfig = config_from_uri(document.location.href)
+            var wordFile = uriConfig.words || document.getElementById("wordListSelect").value
+            var link = document.location.href.replace(/\?.*$/, "")
+
+            link += "?words=" + encodeURIComponent(wordFile)
+            link += "&text=" + encodeURIComponent(document.getElementById("Text").value)
+
+            permalink.value = link
         }
 
     </script>
@@ -383,6 +406,19 @@
         h1 {
             font-size: 200%;
         }
+
+        #permalink {
+            margin-bottom: 20px;
+            border: 0;
+            background-color: #e0e0e0;
+            display: inline-block;
+            border-radius: 3px;
+            padding: 5px 8px;
+            box-sizing: border-box;
+            margin-right: 20px;
+            width: 600px;
+        }
+
     </style>
 
 </head>
@@ -409,25 +445,35 @@
                   onload="this.focus()"></textarea>
     </section>
 
-    <!-- Work In Progress
-        <section class="settings">
-            Word List:
-            <select name="words">
-                <option value="https://dl.dropbox.com/u/8671192/public/ten-hundred-words.txt" selected>English Ten Hundred</option>
-                <option value="http://wortschatz.uni-leipzig.de/Papers/top10000de.txt">German Top 10k</option>
-            </select>
-        </section>
-        -->
+    <section class="share">
+        <input title="Permalink" readonly id="permalink" type="url" value="" class="permalink"
+               onfocus="this.setSelectionRange(0, this.value.length)"/>
+    </section>
+
+    <section class="settings">
+        Word List:
+        <select id="wordListSelect" name="words" onchange="load({words:this.value})">
+            <option value="words/english-1000-plus-inflections.txt" title="3239 words in total">English 1000 most common
+                words (with added inflections)
+            </option>
+            <option value="words/german-grundwortschatz.txt" title="1418 words in total">Deutsch Grundwortschatz (1418
+                Wörter)
+            </option>
+        </select>
+    </section>
 
     <footer>
         <p><sub>This tool was inspired by the <a href="http://splasho.com/upgoer5/">THE UP-GOER FIVE TEXT EDITOR</a>. It
             checks if all the words are part of
             the 1000 most common words (and their inflections). This version was created by <a
                     href="https://twitter.com/Bunkerbewohner1">Mathias Kahl</a>. It's written entirely in very crappy
-            JavaScript code, so just take a look at the <a href="https://github.com/Bunkerbewohner/js-up-goer-five">source</a>, if you want to know how it works.</sub></p>
+            JavaScript code, so just take a look at the <a href="https://github.com/Bunkerbewohner/js-up-goer-five">source</a>,
+            if you want to know how it works.</sub></p>
     </footer>
 
-    <a href="https://github.com/Bunkerbewohner/js-up-goer-five"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/Bunkerbewohner/js-up-goer-five"><img
+            style="position: absolute; top: 0; right: 0; border: 0;"
+            src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 </div>
 </body>
 </html>

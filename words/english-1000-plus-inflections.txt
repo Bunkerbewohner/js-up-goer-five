@@ -1,3 +1,6 @@
+# 1000 most used English words sourced from the original "Up-Goer Five Text Editor" by Theo Sanderson,
+#  with added inflections (via AGID http://wordlist.sourceforge.net)
+# Source: http://splasho.com/upgoer5/ (http://splasho.com/upgoer5/phpspellcheck/dictionaries/1000.dicin)
 Acts
 As
 Ats
