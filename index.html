@@ -409,10 +409,20 @@
             font-size: 200%;
         }
 
+        section.share {
+            margin-top: 20px;
+        }
+
+        section.share label {
+            font-size: 0.75em;
+            color: #333;
+            text-transform: uppercase;
+        }
+
         #permalink {
-            margin-bottom: 20px;
             border: 0;
-            background-color: #e0e0e0;
+            background-color: #f0f0f0;
+            color: #888;
             display: inline-block;
             border-radius: 3px;
             padding: 5px 8px;
@@ -420,6 +430,8 @@
             margin-right: 20px;
             width: 600px;
             text-overflow: ellipsis;
+            text-wrap: normal;
+            word-break: break-all;
         }
 
     </style>
@@ -448,13 +460,8 @@
                   onload="this.focus()"></textarea>
     </section>
 
-    <section class="share">
-        <input title="Permalink" readonly id="permalink" type="url" value="" class="permalink"
-               onfocus="this.setSelectionRange(0, this.value.length)"/>
-    </section>
-
     <section class="settings">
-        Word List:
+        <label for="wordListSelect">Word List:</label>
         <select id="wordListSelect" name="words" onchange="load({words:this.value})">
             <option value="words/english-1000-plus-inflections.txt" title="3239 words in total">English 1000 most common
                 words (with added inflections)
@@ -463,6 +470,12 @@
                 Wörter)
             </option>
         </select>
+    </section>
+
+    <section class="share">
+        <label for="permalink">Permalink:</label>
+        <textarea rows="2" title="Permalink" readonly id="permalink" type="url" value="" class="permalink"
+               onfocus="this.setSelectionRange(0, this.value.length)"></textarea>
     </section>
 
     <footer>
