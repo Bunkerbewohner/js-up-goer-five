@@ -260,22 +260,10 @@
         function load() {
             var config = config_from_uri(document.location.href);
 
-            /**
-             * If config.words is set it is assumed to be the URL to a text file that contains a list of all valid words.
-             */
-            if (config.words != null) {
-                fetch(config.words).then(words => {
-                    console.log(words)
-                })
-                // assuming that words is an URI to load the words from
-                var script = document.createElement("script");
-                script.setAttribute("src", config.words);
-                script.setAttribute("onload", "refresh_index()");
-                document.getElementsByTagName("head")[0].appendChild(script);
-            }
-
+            // If config.words is set it is assumed to be the URL to a text file that contains a list of all valid words.
             var wordListFile = config.words || "words/english-1000-plus-inflections.txt"
 
+            // try to download the words from the configured text file
             if (typeof fetch !== "undefined") {
                 fetch(wordListFile).then(response => {
                     if (response.ok) {
