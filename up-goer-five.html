@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Up-Goer Five Text Editor (in JS)</title>
+    <meta name="author" content="Mathias Kahl">
+    <meta charset="UTF-8"/>
+
+    <!--
+    Copyright (c) 2013 Mathias Kahl <mathias.kahl@gmail.com>
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+    documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and
+    to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or
+    substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+    NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    -->
+
+    <script type="text/javascript">
+        // 1000 most common words as found in the original (http://splasho.com/upgoer5/),
+        // inflections added via AGID (http://wordlist.sourceforge.net/)
+        var valid_words = ["Acts", "As", "Ats", "Beats", "Blacks", "Blues", "Cats", "Days", "Doctors", "Downs", "Fathers", "Forces", "Friends", "God", "Greens", "Guys", "Halls", "Hells", "I", "I'd", "I'll", "I'm", "I've", "Kills", "Ladies", "Lefts", "Marks", "Mays", "Misses", "Mothers", "Mr.", "Mrs.", "Ni", "Nones", "Offices", "Opens", "Reds", "Rights", "Sirs", "Sisters", "Suns", "TV", "TVs", "Truths", "Waves", "Whites", "Words", "a", "able", "abler", "ables", "ablest", "about", "abouts", "above", "aboves", "accept", "accepted", "accepting", "accepts", "across", "act", "acted", "acting", "acts", "actually", "add", "added", "adding", "adds", "admit", "admits", "admitted", "admitting", "afraid", "after", "afternoon", "afternoons", "afters", "again", "against", "age", "aged", "ageing", "ages", "aging", "ago", "agree", "agreed", "agreeing", "agrees", "ah", "ahead", "air", "aired", "airer", "airest", "airing", "airs", "all", "allow", "allowed", "allowing", "allows", "alls", "almost", "alone", "along", "already", "alright", "also", "although", "always", "am", "amaze", "amazed", "amazes", "amazing", "an", "and", "ands", "anger", "angered", "angering", "angers", "angrier", "angriest", "angry", "animal", "animals", "annoy", "annoyed", "annoying", "annoys", "another", "answer", "answered", "answering", "answers", "any", "anymore", "anyone", "anything", "anythings", "anyway", "anyways", "apartment", "apartments", "apparently", "appear", "appeared", "appearing", "appears", "approach", "approached", "approaches", "approaching", "are", "are", "area", "areas", "aren't", "ares", "arm", "armed", "arming", "arms", "around", "arrive", "arrived", "arrives", "arriving", "art", "as", "ask", "asked", "asking", "asks", "asleep", "ass", "asses", "at", "ate", "attack", "attacked", "attacking", "attacks", "attempt", "attempted", "attempting", "attempts", "attention", "attentions", "aunt", "aunts", "avoid", "avoided", "avoiding", "avoids", "away", "aways", "babied", "babier", "babies", "babiest", "baby", "babying", "back", "backed", "backing", "backs", "bad", "badder", "baddest", "bads", "bag", "bagged", "bagging", "bags", "ball", "balled", "balling", "balls", "band", "banded", "banding", "bands", "bar", "barely", "bathroom", "bathrooms", "be", "beat", "beat", "beaten", "beating", "beats", "beautiful", "beautifuler", "beautifulest", "became", "because", "become", "becomes", "becoming", "bed", "bedded", "bedding", "bedroom", "bedrooms", "beds", "been", "before", "began", "begin", "beginning", "begins", "begun", "behind", "behinds", "being", "believe", "believed", "believes", "believing", "bell", "beside", "besides", "best", "bested", "besting", "bests", "better", "bettered", "bettering", "betters", "between", "betweens", "big", "bigged", "bigger", "biggest", "bigging", "bigs", "bit", "bite", "bites", "biting", "bits", "bitten", "black", "blacked", "blacker", "blackest", "blacking", "blacks", "blink", "blinked", "blinking", "blinks", "block", "blocked", "blocking", "blocks", "blonde", "blonder", "blondes", "blondest", "blood", "blooded", "blooding", "bloods", "blue", "blued", "blueing", "bluer", "blues", "bluest", "bluing", "blush", "blushed", "blushes", "blushing", "bodied", "bodies", "body", "bodying", "book", "booked", "booking", "books", "bore", "bored", "bores", "boring", "both", "bother", "bothered", "bothering", "bothers", "bottle", "bottled", "bottles", "bottling", "bottom", "bottomed", "bottoming", "bottoms", "bought", "box", "box", "boxed", "boxes", "boxes", "boxes", "boxing", "boy", "boyfriend", "boyfriends", "boys", "brain", "brained", "braining", "brains", "break", "breakfast", "breakfasted", "breakfasting", "breakfasts", "breaking", "breaks", "breath", "breathe", "breathed", "breathes", "breathing", "breaths", "brethren", "bright", "brighter", "brightest", "brights", "bring", "bringing", "brings", "broke", "broken", "brother", "brothered", "brothering", "brothers", "brothers", "brought", "brown", "browned", "browner", "brownest", "browning", "browns", "brush", "brushed", "brushes", "brushing", "build", "builded", "building", "builds", "built", "burn", "burned", "burning", "burns", "burnt", "burst", "burst", "bursted", "bursting", "bursts", "bus", "bused", "buses", "buses", "busied", "busier", "busies", "busiest", "business", "businesses", "busing", "bussed", "busses", "busses", "bussing", "busy", "busying", "but", "buts", "butted", "butting", "buy", "buying", "buys", "by", "byes", "bys", "call", "called", "calling", "calls", "calm", "calmed", "calmer", "calmest", "calming", "calms", "came", "cames", "can", "can", "can't", "canned", "canning", "cans", "cans", "canst", "car", "card", "carded", "carding", "cards", "care", "cared", "carefully", "cares", "caring", "carried", "carries", "carry", "carrying", "case", "cased", "cases", "casing", "cat", "catch", "catches", "catching", "cats", "catted", "catting", "caught", "cause", "caused", "causes", "causing", "cell", "celled", "celling", "cells", "chair", "chaired", "chairing", "chairs", "chance", "chanced", "chances", "chancing", "change", "changed", "changes", "changing", "chase", "chased", "chases", "chasing", "check", "checked", "checking", "checks", "cheek", "cheeked", "cheeking", "cheeks", "chest", "chests", "child", "children", "chuckle", "chuckled", "chuckles", "chuckling", "cities", "city", "class", "classed", "classes", "classing", "clean", "cleaned", "cleaner", "cleanest", "cleaning", "cleans", "clear", "cleared", "clearer", "clearest", "clearing", "clears", "climb", "climbed", "climbing", "climbs", "close", "closed", "closer", "closes", "closest", "closing", "clothes", "coffee", "coffees", "cold", "colder", "coldest", "colds", "college", "colleges", "color", "colored", "coloring", "colors", "come", "comes", "coming", "comment", "commented", "commenting", "comments", "complete", "completed", "completely", "completer", "completes", "completest", "completing", "computer", "computers", "concern", "concerned", "concerning", "concerns", "confuse", "confused", "confuses", "confusing", "consider", "considered", "considering", "considers", "continue", "continued", "continues", "continuing", "control", "controlled", "controlling", "controls", "conversation", "conversations", "cool", "cooled", "cooler", "coolest", "cooling", "cools", "corner", "cornered", "cornering", "corners", "couch", "couched", "couches", "couching", "could", "could", "couldn't", "counter", "countered", "countering", "counters", "couple", "coupled", "couples", "coupling", "course", "coursed", "courses", "coursing", "cover", "covered", "covering", "covers", "crack", "cracked", "cracking", "cracks", "crazier", "crazies", "craziest", "crazy", "cried", "cries", "cross", "crossed", "crosser", "crosses", "crossest", "crossing", "crowd", "crowded", "crowding", "crowds", "cry", "crying", "cup", "cupped", "cupping", "cups", "cut", "cute", "cuter", "cutes", "cutest", "cuts", "cutting", "dad", "dads", "damn", "damned", "damning", "damns", "dance", "danced", "dances", "dancing", "dark", "darked", "darker", "darkest", "darking", "darks", "date", "dated", "dates", "dating", "daughter", "daughters", "day", "days", "dead", "dead", "deader", "deadest", "deads", "deal", "dealing", "deals", "dealt", "dear", "dearer", "dearest", "dears", "death", "deaths", "decide", "decided", "decides", "deciding", "deep", "deeper", "deepest", "deeps", "definitely", "desk", "desks", "dice", "did", "did", "didn't", "didst", "die", "died", "dieing", "dies", "dies", "different", "dinner", "dinnered", "dinnering", "dinners", "direction", "directions", "disappear", "disappeared", "disappearing", "disappears", "do", "doctor", "doctored", "doctoring", "doctors", "does", "does", "doesn't", "dog", "dogged", "dogging", "dogs", "doing", "don't", "done", "door", "doored", "dooring", "doors", "dos", "dost", "doth", "doubt", "doubted", "doubting", "doubts", "down", "downed", "downing", "downs", "drag", "dragged", "dragging", "drags", "drank", "drank", "draw", "drawing", "drawn", "draws", "dream", "dreamed", "dreaming", "dreams", "dreamt", "dress", "dressed", "dresses", "dressing", "drew", "dried", "drier", "dries", "dries", "driest", "drink", "drinking", "drinks", "drive", "driven", "drives", "driving", "drop", "dropped", "dropping", "drops", "drove", "droved", "droves", "droving", "drunk", "dry", "dryer", "dryest", "drying", "drys", "during", "dying", "each", "ear", "eared", "earing", "earlier", "earlies", "earliest", "early", "ears", "easier", "easies", "easiest", "easily", "easy", "eat", "eaten", "eating", "eats", "edge", "edged", "edges", "edging", "either", "elder", "eldest", "else", "emptied", "emptier", "empties", "emptiest", "empty", "emptying", "end", "ended", "ending", "ends", "enjoy", "enjoyed", "enjoying", "enjoys", "enough", "enoughs", "enter", "entered", "entering", "enters", "entire", "entires", "escape", "escaped", "escapes", "escaping", "especially", "even", "evened", "evener", "evenest", "evening", "evenings", "evens", "eventually", "ever", "every", "everyone", "everything", "exactly", "except", "excepted", "excepting", "excepts", "excite", "excited", "excites", "exciting", "exclaim", "exclaimed", "exclaiming", "exclaims", "excuse", "excused", "excuses", "excusing", "expect", "expected", "expecting", "expects", "explain", "explained", "explaining", "explains", "expression", "expressions", "eye", "eyebrow", "eyebrows", "eyed", "eyeing", "eyen", "eyes", "eyes", "eying", "eyne", "face", "faced", "faces", "facing", "fact", "facts", "fall", "fallen", "falling", "falls", "families", "family", "far", "farther", "farthest", "fast", "fasted", "faster", "fastest", "fasting", "fasts", "father", "fathered", "fathering", "fathers", "fault", "faulted", "faulting", "faults", "favorite", "favorites", "fear", "feel", "feeling", "feels", "feet", "fell", "felled", "feller", "fellest", "felling", "fells", "felt", "felted", "felting", "felts", "few", "fewer", "fewest", "field", "fielded", "fielding", "fields", "fight", "fighting", "fights", "figure", "figured", "figures", "figuring", "fill", "finally", "find", "finding", "finds", "fine", "fined", "finer", "fines", "finest", "finger", "fingered", "fingering", "fingers", "fining", "finish", "finished", "finishes", "finishing", "fire", "fired", "fires", "firing", "first", "firsts", "fit", "fit", "fits", "fitted", "fitter", "fittest", "fitting", "five", "fives", "fix", "fixed", "fixes", "fixing", "flash", "flashed", "flasher", "flashes", "flashest", "flashing", "flew", "flied", "flier", "flies", "fliest", "flip", "flipped", "flipper", "flippest", "flipping", "flips", "floor", "floored", "flooring", "floors", "flown", "fly", "flying", "foci", "focus", "focused", "focuses", "focuses", "focusing", "focussed", "focusses", "focusses", "focussing", "follow", "followed", "following", "follows", "food", "foods", "foot", "footed", "footing", "foots", "for", "force", "forced", "forces", "forcing", "forget", "forgets", "forgetting", "forgot", "forgotten", "form", "formed", "forming", "forms", "forward", "forwarded", "forwarder", "forwardest", "forwarding", "forwards", "fought", "found", "founded", "founding", "founds", "four", "fours", "free", "freed", "freeing", "freer", "frees", "freest", "friend", "friended", "friending", "friends", "from", "front", "fronted", "fronting", "fronts", "frown", "frowned", "frowning", "frowns", "fuck", "fucked", "fucking", "fucks", "full", "fulled", "fuller", "fullest", "fulling", "fulls", "fun", "funned", "funner", "funnest", "funnier", "funnies", "funniest", "funning", "funny", "funs", "further", "further", "furthered", "furthering", "furthers", "furthest", "game", "gamed", "gamer", "games", "gamest", "gaming", "gasp", "gasped", "gasping", "gasps", "gave", "gaze", "gazed", "gazes", "gazing", "gently", "get", "gets", "getting", "giggle", "giggled", "giggles", "giggling", "girl", "girlfriend", "girlfriends", "girls", "give", "given", "givens", "gives", "giving", "glad", "gladder", "gladdest", "glance", "glanced", "glances", "glancing", "glare", "glared", "glares", "glaring", "glass", "glassed", "glasses", "glassing", "go", "godded", "godding", "gods", "goes", "goes", "going", "gone", "gonna", "good", "goods", "gos", "got", "got", "gotten", "gotten", "grab", "grabbed", "grabbing", "grabs", "great", "greater", "greatest", "greats", "green", "greened", "greener", "greenest", "greening", "greens", "greet", "greeted", "greeting", "greets", "grew", "grey", "greyed", "greyer", "greyest", "greying", "greys", "grin", "grinned", "grinning", "grins", "grip", "grips", "groan", "groaned", "groaning", "groans", "ground", "grounded", "grounding", "grounds", "group", "grouped", "grouping", "groups", "grow", "growing", "grown", "grows", "guard", "guarded", "guarding", "guards", "guess", "guessed", "guesses", "guessing", "gun", "gunned", "gunning", "guns", "guy", "guyed", "guying", "guys", "had", "had", "hadn't", "hadst", "hair", "hairs", "half", "hall", "halls", "hallway", "hallways", "halves", "hand", "handed", "handing", "handle", "handled", "handles", "handling", "hands", "hang", "hanged", "hanging", "hangs", "happen", "happened", "happening", "happens", "happier", "happiest", "happy", "hard", "harder", "hardest", "hards", "has", "has", "hast", "hate", "hated", "hates", "hath", "hating", "have", "haven't", "haves", "having", "he", "he'd", "he's", "head", "headed", "heading", "heads", "hear", "heard", "hearing", "hears", "heart", "hearted", "hearting", "hearts", "heavier", "heavies", "heaviest", "heavy", "held", "hell", "helled", "helling", "hello", "helloed", "helloes", "helloing", "hellos", "hells", "help", "helped", "helping", "helps", "her", "here", "heres", "herself", "hes", "hey", "hi", "hid", "hid", "hidden", "hide", "hides", "hiding", "high", "higher", "highest", "highs", "him", "hims", "himself", "his", "hissed", "hisses", "hisses", "hissing", "hit", "hits", "hitting", "hold", "holding", "holds", "home", "homed", "homes", "homing", "hope", "hoped", "hopes", "hoping", "horse", "horse", "horsed", "horses", "horses", "horsing", "hospital", "hospitals", "hot", "hots", "hotted", "hotter", "hottest", "hotting", "hour", "hours", "house", "housed", "houses", "housing", "how", "however", "hows", "hug", "huge", "huger", "hugest", "hugged", "hugging", "hugs", "huh", "huhs", "human", "humaner", "humanest", "humans", "hundred", "hundred", "hundreds", "hung", "hung", "hurried", "hurries", "hurry", "hurrying", "hurt", "hurting", "hurts", "ice", "iced", "ices", "icing", "idea", "ideas", "if", "ifs", "ignore", "ignored", "ignores", "ignoring", "imagine", "imagined", "imagines", "imagining", "immediately", "important", "in", "ins", "inside", "insides", "instead", "interest", "interested", "interesting", "interests", "interrupt", "interrupted", "interrupting", "interrupts", "inti", "into", "is", "isn't", "it", "it's", "its", "jacket", "jacketed", "jacketing", "jackets", "jeans", "jerk", "jerked", "jerking", "jerks", "job", "jobbed", "jobbing", "jobs", "join", "joined", "joining", "joins", "joke", "joked", "jokes", "joking", "jump", "jumped", "jumping", "jumps", "just", "justed", "juster", "justest", "justing", "justs", "keep", "keeping", "keeps", "kept", "key", "keyed", "keying", "keys", "kick", "kicked", "kicking", "kicks", "kid", "kidded", "kidding", "kids", "kill", "killed", "killing", "kills", "kind", "kinder", "kindest", "kinds", "kiss", "kissed", "kisses", "kissing", "kitchen", "kitchened", "kitchening", "kitchens", "knee", "kneed", "kneeing", "knees", "knew", "knock", "knocked", "knocking", "knocks", "know", "knowing", "known", "knowns", "knows", "ladies", "lady", "laid", "lain", "land", "landed", "landing", "lands", "large", "larger", "larges", "largest", "last", "lasted", "lasting", "lasts", "late", "later", "latest", "laugh", "laughed", "laughing", "laughs", "lay", "lay", "laying", "lays", "lead", "leaded", "leading", "leads", "lean", "leaned", "leaner", "leanest", "leaning", "leans", "leant", "learn", "learned", "learning", "learns", "learnt", "least", "least", "least", "leasts", "leave", "leaved", "leaves", "leaving", "led", "led", "left", "left", "lefter", "leftest", "lefts", "leg", "legged", "legging", "legs", "less", "less", "lesser", "lesser", "lessest", "let", "lets", "letter", "lettered", "lettering", "letters", "letting", "lie", "lied", "lies", "life", "lift", "lifted", "lifting", "lifts", "light", "lighted", "lighter", "lightest", "lighting", "lights", "like", "liked", "liker", "likes", "likest", "liking", "line", "lined", "lines", "lining", "lip", "lipped", "lipping", "lips", "listen", "listened", "listening", "listens", "lit", "little", "littler", "littles", "littlest", "live", "lived", "liver", "lives", "livest", "living", "lock", "locked", "locker", "lockers", "locking", "locks", "long", "longed", "longer", "longest", "longing", "longs", "look", "looked", "looking", "looks", "lose", "loses", "losing", "lost", "lot", "lots", "lotted", "lotting", "loud", "louder", "loudest", "love", "loved", "loves", "loving", "low", "lowed", "lower", "lowest", "lowing", "lows", "lunch", "lunched", "lunches", "lunching", "lying", "mad", "madded", "madder", "maddest", "madding", "made", "mads", "make", "makes", "making", "man", "manage", "managed", "manages", "managing", "many", "mark", "marked", "marking", "marks", "married", "marries", "marry", "marrying", "match", "matched", "matches", "matching", "matter", "mattered", "mattering", "matters", "may", "may", "maybe", "maybes", "mays", "mayst", "me", "mean", "meaner", "meanest", "meaning", "means", "meant", "meet", "meeter", "meetest", "meeting", "meets", "memories", "memory", "men", "mention", "mentioned", "mentioning", "mentions", "mes", "met", "middle", "middled", "middles", "middling", "might", "mights", "mind", "minded", "minding", "minds", "mine", "mined", "mines", "mining", "minute", "minuted", "minuter", "minutes", "minutest", "minuting", "mirror", "mirrored", "mirroring", "mirrors", "miss", "missed", "misses", "missing", "mom", "moment", "moments", "moms", "money", "moneys", "monies", "month", "months", "mood", "moods", "more", "mores", "morning", "mornings", "most", "mosts", "mother", "mothered", "mothering", "mothers", "mouth", "mouthed", "mouthing", "mouths", "move", "moved", "moves", "movie", "movies", "moving", "much", "muches", "mum", "mumble", "mumbled", "mumbles", "mumbling", "mummed", "mumming", "mums", "mums", "music", "musicked", "musicking", "musics", "must", "musted", "musting", "musts", "mutter", "muttered", "muttering", "mutters", "my", "mys", "myself", "name", "named", "names", "naming", "near", "neared", "nearer", "nearest", "nearing", "nearlier", "nearliest", "nearly", "nears", "neck", "necked", "necking", "necks", "need", "needed", "needing", "needs", "nervous", "never", "new", "newed", "newer", "newest", "newing", "news", "next", "nice", "nicer", "nicest", "night", "nights", "no", "nod", "noes", "noise", "noised", "noises", "noising", "none", "nones", "normal", "normals", "nos", "nose", "nosed", "noses", "nosing", "not", "note", "noted", "notes", "nothing", "nothings", "notice", "noticed", "notices", "noticing", "noting", "now", "nows", "number", "numbered", "numbering", "numbers", "obviously", "of", "off", "offed", "offer", "offered", "offering", "offers", "office", "offices", "offing", "offs", "often", "oftener", "oftenest", "oh", "ohs", "okay", "okayed", "okaying", "okays", "old", "older", "oldest", "olds", "on", "once", "onces", "one", "ones", "onliest", "only", "ons", "onto", "open", "opened", "opener", "openest", "opening", "opens", "or", "order", "ordered", "ordering", "orders", "other", "others", "our", "ours", "out", "outed", "outing", "outs", "outside", "outsides", "over", "overs", "own", "owned", "owning", "owns", "pack", "packed", "packing", "packs", "paid", "pain", "pained", "paining", "pains", "paint", "painted", "painting", "paints", "pair", "paired", "pairing", "pairs", "pants", "paper", "papered", "papering", "papers", "parents", "park", "parked", "parking", "parks", "part", "parted", "partied", "parties", "parting", "parts", "party", "partying", "pass", "passed", "passes", "passing", "past", "pasted", "pasting", "pasts", "pause", "paused", "pauses", "pausing", "pay", "payed", "paying", "pays", "people", "people", "peopled", "peoples", "peopling", "perfect", "perfected", "perfecter", "perfectest", "perfecting", "perfects", "perhaps", "perhapses", "person", "persons", "phone", "phoned", "phones", "phoning", "pick", "picked", "picking", "picks", "picture", "pictured", "pictures", "picturing", "piece", "pieced", "pieces", "piecing", "pink", "pinked", "pinker", "pinkest", "pinking", "pinks", "piss", "pissed", "pisses", "pissing", "place", "placed", "places", "placing", "plan", "plans", "play", "played", "playing", "plays", "please", "pleased", "pleases", "pleasing", "pocket", "pocketed", "pocketing", "pockets", "point", "pointed", "pointing", "points", "police", "policed", "polices", "policing", "pop", "popped", "popping", "pops", "position", "positioned", "positioning", "positions", "possible", "possibler", "possibles", "possiblest", "power", "powered", "powering", "powers", "practically", "present", "presented", "presenting", "presents", "press", "pressed", "presses", "pressing", "pretend", "pretended", "pretending", "pretends", "prettied", "prettier", "pretties", "prettiest", "pretty", "prettying", "probably", "problem", "problems", "promise", "promised", "promises", "promising", "pull", "pulled", "pulling", "pulls", "punch", "punched", "punches", "punching", "push", "pushed", "pushes", "pushing", "put", "puts", "putting", "question", "questioned", "questioning", "questions", "quick", "quicker", "quickest", "quickly", "quicks", "quiet", "quieted", "quieter", "quietest", "quieting", "quietly", "quiets", "quite", "quited", "quites", "quiting", "race", "raced", "races", "racing", "rain", "rained", "raining", "rains", "raise", "raised", "raises", "raising", "ran", "rang", "rang", "rather", "reach", "reached", "reaches", "reaching", "read", "readding", "readied", "readier", "readies", "readiest", "reading", "reads", "ready", "readying", "real", "realer", "reales", "realest", "realize", "realized", "realizes", "realizing", "reallied", "reallies", "really", "reallying", "reals", "reals", "reals", "reason", "reasoned", "reasoning", "reasons", "recognize", "recognized", "recognizes", "recognizing", "red", "redder", "reddest", "reis", "relationship", "relationships", "relax", "relaxed", "relaxes", "relaxing", "remain", "remained", "remaining", "remains", "remember", "remembered", "remembering", "remembers", "remind", "reminded", "reminding", "reminds", "repeat", "repeated", "repeating", "repeats", "replied", "replies", "reply", "replying", "respond", "responded", "responding", "responds", "rest", "rested", "resting", "rests", "return", "returned", "returning", "returns", "ridden", "ride", "rides", "riding", "right", "righted", "righter", "rightest", "righting", "rights", "ring", "ringed", "ringing", "rings", "road", "roads", "rock", "rocked", "rocking", "rocks", "rode", "roll", "rolled", "rolling", "rolls", "room", "roomed", "rooming", "rooms", "rose", "rosed", "roses", "rosing", "round", "rounded", "rounder", "roundest", "rounding", "rounds", "rub", "rubbed", "rubbing", "rubs", "run", "rung", "running", "runs", "rush", "rushed", "rushes", "rushing", "sad", "sadder", "saddest", "safe", "safer", "safest", "said", "saids", "saith", "same", "sames", "sat", "save", "saved", "saves", "saving", "saw", "sawed", "sawed", "sawing", "sawn", "saws", "say", "sayer", "sayest", "saying", "says", "says", "scare", "scared", "scares", "scaring", "school", "schooled", "schooling", "schools", "scream", "screamed", "screaming", "screams", "search", "searched", "searches", "searching", "seat", "seated", "seating", "seats", "second", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "sees", "self", "selfed", "selfing", "selfs", "selves", "send", "sending", "sends", "sense", "sensed", "senses", "sensing", "sent", "serious", "seriously", "set", "sets", "setting", "settle", "settled", "settles", "settling", "seven", "sevens", "several", "severals", "shadow", "shadowed", "shadowing", "shadows", "shake", "shaken", "shakes", "shaking", "share", "shared", "shares", "sharing", "she", "she'd", "she's", "shes", "shift", "shifted", "shifting", "shifts", "shirt", "shirted", "shirting", "shirts", "shit", "shits", "shock", "shocked", "shocking", "shocks", "shod", "shod", "shodden", "shoe", "shoed", "shoed", "shoeing", "shoes", "shoes", "shook", "shooks", "shoon", "shop", "shopped", "shopping", "shops", "short", "shorted", "shorter", "shortest", "shorting", "shorts", "shot", "shot", "shots", "shots", "shotted", "shotting", "should", "shoulder", "shouldered", "shouldering", "shoulders", "shouldest", "shouldn't", "shout", "shouted", "shouting", "shouts", "shove", "shoved", "shoves", "shoving", "show", "showed", "showed", "shower", "showered", "showering", "showers", "showing", "shown", "shows", "shrug", "shrugged", "shrugging", "shrugs", "shut", "shuts", "sick", "sicked", "sicker", "sickest", "sicking", "sicks", "side", "sided", "sides", "siding", "sigh", "sighed", "sighing", "sighs", "sight", "sighted", "sighting", "sights", "sign", "signed", "signing", "signs", "silence", "silenced", "silences", "silencing", "silent", "silenter", "silentest", "silents", "simply", "since", "single", "singled", "singles", "singling", "sir", "sister", "sistered", "sistering", "sisters", "sit", "situation", "situations", "six", "skied", "skies", "skin", "skinned", "skinning", "skins", "sky", "skyed", "skying", "slam", "slammed", "slamming", "slams", "sleep", "sleeping", "sleeps", "slept", "slightly", "slip", "slips", "slow", "slowed", "slower", "slowest", "slowing", "slowly", "slows", "small", "smalled", "smaller", "smallest", "smalling", "smalls", "smell", "smelled", "smelling", "smells", "smelt", "smile", "smiled", "smiles", "smiling", "smirk", "smirked", "smirking", "smirks", "smoke", "smoked", "smokes", "smoking", "snap", "snapped", "snapping", "snaps", "so", "soft", "softer", "softest", "softly", "softs", "some", "somehow", "someone", "someones", "something", "somethings", "sometimes", "somewhere", "somewheres", "son", "song", "songs", "sons", "soon", "sooner", "soonest", "sorrier", "sorries", "sorriest", "sorry", "sort", "sorted", "sorting", "sorts", "sos", "sound", "sounded", "sounder", "soundest", "sounding", "sounds", "space", "spaced", "spaces", "spacing", "spake", "speak", "speaking", "speaks", "spend", "spending", "spends", "spent", "spoke", "spoke", "spoke", "spoked", "spoken", "spokes", "spoking", "spot", "spots", "spotted", "spotting", "staid", "stair", "stairs", "stand", "standing", "stands", "star", "stare", "stared", "stares", "staring", "start", "started", "starting", "starts", "state", "stated", "states", "stating", "stay", "stayed", "staying", "stays", "step", "stepped", "stepping", "steps", "stick", "sticking", "sticks", "still", "stilled", "stiller", "stillest", "stilling", "stills", "stomach", "stomached", "stomaching", "stomachs", "stood", "stop", "stops", "store", "stored", "stores", "storied", "stories", "storing", "story", "storying", "straight", "straighted", "straighter", "straightest", "straighting", "straights", "strange", "stranger", "strangest", "street", "streets", "strong", "stronger", "strongest", "struggle", "struggled", "struggles", "struggling", "stuck", "student", "students", "studied", "studies", "study", "studying", "stuff", "stuffed", "stuffing", "stuffs", "stupid", "stupider", "stupidest", "stupids", "such", "suck", "sucked", "sucking", "sucks", "sudden", "suddenly", "suddens", "suggest", "suggested", "suggesting", "suggests", "summer", "summered", "summering", "summers", "sun", "sunned", "sunning", "suns", "suppose", "supposed", "supposes", "supposing", "sure", "surer", "sures", "surest", "surprise", "surprised", "surprises", "surprising", "surround", "surrounded", "surrounding", "surrounds", "sweet", "sweeter", "sweetest", "sweets", "table", "tabled", "tables", "tabling", "take", "taken", "takes", "taking", "talk", "talked", "talking", "talks", "tall", "taller", "tallest", "teacher", "teachers", "team", "teamed", "teaming", "teams", "tear", "teared", "tearing", "tears", "teeth", "tell", "telling", "tells", "ten", "tens", "than", "thank", "thanked", "thanking", "thanks", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "thens", "there", "there's", "theres", "these", "theses", "they", "they'd", "they're", "thick", "thicker", "thickest", "thicks", "thing", "things", "think", "thinking", "thinks", "third", "thirded", "thirding", "thirds", "this", "those", "though", "thought", "thoughts", "three", "threes", "threw", "throat", "throated", "throating", "throats", "through", "throw", "throwing", "thrown", "throws", "tie", "tied", "tieing", "ties", "tight", "tighter", "tightest", "tights", "time", "timed", "times", "timing", "tinier", "tiniest", "tiny", "tire", "tired", "tires", "tiring", "to", "today", "todays", "together", "told", "tomorrow", "tomorrows", "tone", "toned", "tones", "tongue", "tongued", "tongues", "tonguing", "tonight", "tonights", "toning", "too", "took", "top", "tops", "tore", "torn", "totally", "touch", "touched", "touches", "touching", "toward", "towards", "town", "towns", "track", "tracked", "tracking", "tracks", "trail", "trailed", "trailing", "trails", "train", "trained", "training", "trains", "tree", "treed", "treeing", "trees", "tried", "tries", "trip", "tripped", "tripping", "trips", "trouble", "troubled", "troubles", "troubling", "trust", "trusted", "trusting", "trusts", "truth", "truths", "try", "trying", "turn", "turned", "turning", "turns", "twenties", "twenty", "two", "twos", "tying", "type", "typed", "types", "typing", "uncle", "uncled", "uncles", "uncling", "under", "understand", "understanding", "understands", "understood", "until", "up", "up", "upon", "upped", "upping", "ups", "us", "use", "used", "uses", "uses", "using", "usual", "usually", "usuals", "verier", "veriest", "very", "visit", "visited", "visiting", "visits", "voice", "voiced", "voices", "voicing", "wait", "waited", "waiting", "waits", "wake", "waked", "waked", "wakes", "waking", "walk", "walked", "walking", "walks", "wall", "walled", "walling", "walls", "want", "wanted", "wanting", "wants", "warm", "warmed", "warmer", "warmest", "warming", "warms", "warn", "warned", "warning", "warns", "was", "was", "wases", "wasn't", "wast", "watch", "watched", "watches", "watching", "water", "watered", "watering", "waters", "wave", "waved", "waves", "waving", "way", "ways", "we", "we'll", "we're", "we've", "wear", "wearing", "wears", "week", "weeks", "weird", "weirded", "weirder", "weirdest", "weirding", "weirds", "well", "welled", "welling", "wells", "went", "were", "weren't", "wet", "wet", "wets", "wetted", "wetter", "wettest", "wetting", "what", "what's", "whatever", "whats", "when", "whens", "where", "wheres", "whether", "which", "while", "whiled", "whiles", "whiling", "whisper", "whispered", "whispering", "whispers", "white", "whited", "whiter", "whites", "whitest", "whiting", "who", "whole", "wholes", "why", "whys", "wide", "wider", "wides", "widest", "wife", "wifed", "wifes", "wifing", "will", "will", "willed", "willing", "wills", "wills", "wilt", "wind", "winded", "winded", "winded", "winding", "window", "windowed", "windowing", "windows", "winds", "wipe", "wiped", "wipes", "wiping", "wish", "wished", "wishes", "wishing", "with", "withed", "within", "withing", "withins", "without", "withouts", "withs", "wives", "woke", "woke", "woke", "woken", "woman", "womaned", "womaning", "womans", "women", "won't", "wonder", "wondered", "wondering", "wonders", "wood", "wooded", "wooding", "woods", "word", "worded", "wording", "words", "wore", "work", "worked", "working", "works", "world", "worlds", "worn", "worried", "worries", "worry", "worrying", "worse", "worse", "worses", "worst", "would", "would", "wouldn't", "wouldst", "wound", "wound", "wow", "wowed", "wowing", "wows", "wrap", "wrapped", "wrapping", "wraps", "wrapt", "writ", "write", "writes", "writing", "written", "wrong", "wronged", "wronger", "wrongest", "wronging", "wrongs", "wrote", "wrought", "yeah", "yeahs", "year", "years", "yell", "yelled", "yelling", "yells", "yes", "yesed", "yeses", "yesing", "yessed", "yesses", "yessing", "yet", "you", "you'd", "you'll", "you're", "you've", "young", "younger", "youngest", "your", "yours", "yourself", "yourselves", "yous"];
+        var word_index = {} // initialized via load()
+
+        // trim for IE8 compatibility
+        function trim(str) {
+            return str.replace(/^\s+|\s+$/g, '');
+        }
+
+        // indexOf(x) >= 0 for IE8 compatibility
+        function contains(array, el) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i] == el) return true;
+            }
+            return false;
+        }
+
+        /**
+         * Creates a hash map of the first letters of words. Every entry of the returned array
+         * corresponds to one letter and contains all the words that start with it.
+         * @param dict word list
+         * @return {Array}
+         */
+        function build_index(dict) {
+            // make sure it's sorted properly
+            dict.sort();
+
+            // Build a index based on the first letter of the words
+            var tree = [];
+            var current_letter = '';
+
+            for (var i = 0; i < dict.length; i++) {
+                var first_letter = dict[i].charAt(0);
+                if (first_letter != current_letter) {
+                    tree[first_letter] = [];
+                    current_letter = first_letter;
+                }
+                tree[first_letter].push(dict[i]);
+            }
+
+            return tree;
+        }
+
+        /**
+         * Checks if the index contains the word.
+         * @param word some word
+         * @return {Boolean}
+         */
+        function index_contains(word) {
+            var indexEntry = word_index[word.charAt(0)];
+            if (typeof(indexEntry) == "undefined") return false;
+            return contains(indexEntry, word);
+        }
+
+        /**
+         * Checks if a word is in the index and therefore valid.
+         * @param word some word
+         * @return {Boolean}
+         */
+        function is_valid(word) {
+            // if the word is hyphenated, check the parts individually
+            if (word.match(/-/)) {
+                var parts = word.split("-");
+                var valid = true;
+                for (var i = 0; i < parts.length; i++) {
+                    valid = valid && is_valid(parts[i]);
+                }
+                return valid;
+            }
+
+            word = strip_special(trim(word)).replace(/'s$/, "");
+            if (word == "") return false;
+            return index_contains(word) || index_contains(word.toLowerCase());
+        }
+
+        /**
+         * Removes special chars (everything that's not a letter) from the word.
+         * @param word some word
+         * @return {String}
+         */
+        function strip_special(word) {
+            return word.replace(/[^a-zA-Z']/g, "").replace("\"", "").replace(".", "");
+        }
+
+        /**
+         * Gets the text that was entered by the user so far.
+         * @return {String}
+         */
+        function get_text() {
+            return document.getElementById("Text").value;
+        }
+
+        /**
+         * Returns an array of the words that were typed in by the user split by spaces
+         * and annotated with <valid/> and <invalid/> tags.
+         * @return {Array}
+         */
+        function get_input_words() {
+            var textfield = document.getElementById("Text");
+            var text = get_text().replace(/\n/g, " <br> ");
+            var words = text.split(/\s/);
+
+            for (var i = words.length - 1; i >= 0; i--) {
+                if (trim(words[i]) == "" || words[i] == "<br>") continue;
+                var valid = is_valid(trim(words[i]));
+
+                words[i] = words[i].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                if (!valid) words[i] = "<invalid>" + words[i] + "</invalid>";
+                else words[i] = "<valid>" + words[i] + "</valid>";
+            }
+
+            return words;
+        }
+
+        /**
+         * Checks all the words in the text area and highlights valid and invalid words.
+         * Additionally suggestions for the last word are shown.
+         */
+        function check_words() {
+            var input_words = get_input_words();
+            var words = [];
+
+            for (var i = 0, j = 0; i < input_words.length; i++) {
+                if (input_words[i] != "") {
+                    words.push(input_words[i]);
+                }
+
+                if (input_words[i] != "<br>") {
+                    words.push(" ");
+                }
+            }
+
+            // alternate spaces
+            for (i = 0; i < words.length - 1; i++) {
+                if (words[i] == " " && words[i + 1] == " ") {
+                    words[i] = "&nbsp;";
+                }
+            }
+
+            // update the background layer
+            document.getElementById("BgLayer").innerHTML = words.join("");
+
+            // Last word
+            document.getElementById("Suggestions").innerHTML = "";
+            var last_word = find_last_word(words);
+            if (last_word != null) {
+                show_suggestions(last_word);
+                if (last_word.match(/^[A-Z]/)) show_suggestions(last_word.toLowerCase());
+            }
+        }
+
+        /**
+         * Syncs the scroll position of the text editor and the background layer
+         */
+        function sync_layers() {
+            document.getElementById("BgLayer").scrollTop = document.getElementById("Text").scrollTop;
+        }
+
+        /**
+         * Shows other words that are similar (e.g. share a common prefix) with a word
+         * next to the text editor.
+         * @param word
+         */
+        function show_suggestions(word) {
+            if (word == null) return;
+            var first_letter = word.charAt(0);
+            var suggestions = document.getElementById("Suggestions");
+
+            var indexEntry = word_index[first_letter];
+            if (typeof(indexEntry) == "undefined") return;
+
+            for (var i = 0, j = 0; i < indexEntry.length; i++) {
+                var regex = new RegExp(word);
+                if (!indexEntry[i].match(regex)) continue;
+
+                var mark = indexEntry[i].replace(word, "<b>" + word + "</b>");
+                suggestions.innerHTML += "<li>" + mark + "</li>";
+
+                if (j++ > 50) {
+                    suggestions.innerHTML += "<li>...</li>";
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Strips all HTML tags from the given word.
+         * @param word Some word
+         * @return {String}
+         */
+        function strip_html(word) {
+            var el = document.createElement("div");
+            el.innerHTML = word;
+            if (el.innerText) return el.innerText;
+            else return el.textContent;
+        }
+
+        /**
+         * Returns the last word in a list of words as returned by get_input_words().
+         * @param words words from get_input_words()
+         * @return {*}
+         */
+        function find_last_word(words) {
+            for (var i = words.length - 1; i >= 0; i--) {
+                var part = strip_html(trim(words[i]));
+                if (part == "") continue;
+                return part;
+            }
+
+            return words[0];
+        }
+
+        /**
+         * Tries to parse the query string in the form of A=0&B=1&... and returns a dictionary of the arguments.
+         * If no query string exists it returns the default config of {words: null}.
+         * @param uri
+         * @returns {{words: null}}
+         */
+        function config_from_uri(uri) {
+            var cfg = {'words': null};
+            var query = uri.match(/\?.*/);
+            if (query == null) return cfg;
+
+            query = query[0].substr(1).split("&");
+            for (var i = 0; i < query.length; i++) {
+                var pair = query[i].split("=");
+                cfg[pair[0]] = pair[1];
+            }
+
+            return cfg;
+        }
+
+        function load() {
+            var config = config_from_uri(document.location.href);
+
+            /**
+             * If config.words is set it is assumed to be the URL to a text file that contains a list of all valid words.
+             */
+            if (config.words != null) {
+                fetch(config.words).then(words => {
+                    console.log(words)
+                })
+                // assuming that words is an URI to load the words from
+                var script = document.createElement("script");
+                script.setAttribute("src", config.words);
+                script.setAttribute("onload", "refresh_index()");
+                document.getElementsByTagName("head")[0].appendChild(script);
+            }
+
+            var wordListFile = config.words || "words/english-1000-plus-inflections.txt"
+
+            if (typeof fetch !== "undefined") {
+                fetch(wordListFile).then(response => {
+                    if (response.ok) {
+                        return response.text()
+                    } else {
+                        throw new Error("HTTP " + response.status + " (" + response.statusText + ") - " + wordListFile)
+                    }
+                }).then(words => {
+                    var loaded_words = words.split("\n").map(w => w.trim())
+                    use_words(loaded_words)
+
+                    console.log("Loaded " + loaded_words.length + " words from '" + wordListFile + "'")
+                }).catch(err => {
+                    use_words(valid_words)
+
+                    console.error(err)
+                    alert("Could not load word list from '" + wordListFile + "'. Using default words")
+                })
+            } else {
+                // old browser. fallback to default word list because I'm too lazy to use XMLHttpRequest
+                use_words(valid_words)
+
+                if (config.words) {
+                    alert("Could not load words from '" + config.words + "' because your browser is too old.")
+                }
+            }
+        }
+
+        function use_words(words) {
+            word_index = build_index(words)
+            check_words()
+        }
+
+        function refresh_index() {
+            word_index = build_index(valid_words);
+        }
+
+    </script>
+    <style type="text/css">
+
+        body {
+            background-color: white;
+            color: black;
+            padding: 0px;
+            margin: 0px;
+            font-family: Tahoma, sans-serif;
+            font-size: 14px;
+        }
+
+        #Main {
+            width: 620px;
+            margin: 20px auto;
+        }
+
+        section.content {
+            height: 420px;
+        }
+
+        #Text, #BgLayer {
+            padding: 2px;
+            font-size: 16px;
+            font-family: Tahoma, sans-serif;
+            color: black;
+            line-height: 1.5em;
+            height: 400px;
+            width: 600px;
+            display: block;
+            background-color: transparent;
+            overflow: auto;
+        }
+
+        #Text {
+            position: absolute;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #BgLayer {
+            color: transparent;
+            background-color: #eeeeee;
+            position: absolute;
+            padding: 0px;
+            padding-left: 1px;
+        }
+
+        #BgLayer invalid {
+            background-color: #ffa0a0;
+        }
+
+        #BgLayer valid {
+            background-color: #80d080;
+        }
+
+        #Suggestions {
+            position: absolute;
+            margin: 0px;
+            padding: 0px;
+            margin-left: 610px;
+            list-style-type: none;
+            max-height: 400px;
+            overflow: auto;
+            min-width: 150px;
+        }
+
+        #Suggestions li {
+            margin: 0px;
+            padding: 10px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: #909090;
+        }
+
+        .hint {
+            color: #909090;
+        }
+
+        h1 {
+            font-size: 200%;
+        }
+    </style>
+
+</head>
+<body onload="load()">
+<div id="Main">
+    <header>
+        <h1>The Up-Goer Five Text Editor <span class="hint">(in <abbr title="JavaScript">JS</abbr>)</span></h1>
+    </header>
+
+    <section class="intro">
+        <p>CAN YOU EXPLAIN A HARD IDEA USING ONLY THE <a
+                href="http://splasho.com/upgoer5/phpspellcheck/dictionaries/1000.	dicin">TEN HUNDRED</a> MOST USED
+            WORDS? IT'S NOT VERY EASY. TYPE IN THE BOX TO TRY IT OUT.</p>
+    </section>
+
+    <ul id="Suggestions">
+
+    </ul>
+
+    <section class="content">
+        <div id="BgLayer">
+        </div>
+        <textarea id="Text" contenteditable onkeyup="check_words()" onscroll="sync_layers()"
+                  onload="this.focus()"></textarea>
+    </section>
+
+    <!-- Work In Progress
+        <section class="settings">
+            Word List:
+            <select name="words">
+                <option value="https://dl.dropbox.com/u/8671192/public/ten-hundred-words.txt" selected>English Ten Hundred</option>
+                <option value="http://wortschatz.uni-leipzig.de/Papers/top10000de.txt">German Top 10k</option>
+            </select>
+        </section>
+        -->
+
+    <footer>
+        <p><sub>This tool was inspired by the <a href="http://splasho.com/upgoer5/">THE UP-GOER FIVE TEXT EDITOR</a>. It
+            checks if all the words are part of
+            the 1000 most common words (and their inflections). This version was created by <a
+                    href="https://twitter.com/Bunkerbewohner1">Mathias Kahl</a>. It's written entirely in very crappy
+            JavaScript code, so just take a look at the source, if you want to know how it works.</sub></p>
+    </footer>
+</div>
+</body>
+</html>
